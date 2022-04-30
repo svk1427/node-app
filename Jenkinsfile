@@ -17,10 +17,12 @@ pipeline {
         }
 
         stage('Push Image to dokcer hub'){
+            steps {
            withCredentials([string(credentialsId: 'dockerhub_pwd', variable: 'Dockerhubpwd')]) {
                sh "docker login -u vamsirecordent ${Dockerhubpwd}"
                sh "docker push vamsirecordent/nodeapp:${DOCKER_TAG}"
             }
+          }
         }
 }
 }
