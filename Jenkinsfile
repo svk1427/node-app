@@ -33,9 +33,9 @@ pipeline {
                     sh "scp -o StrictHostKeyChecking=no services.yml node-app-pod.yml ubuntu@3.109.123.87:/home/ubuntu/"
                     script {
                         try {
-                             sh "ssh ubuntu@3.109.123.87 kubectl apply -f /home/ubuntu"
+                             sh "ssh ubuntu@3.109.123.87:/home/ubuntu kubectl apply -f"
                         }catch(error) {
-                          sh "ssh ubuntu@3.109.123.87 kubectl create -f /home/ubuntu/"  
+                             sh "ssh ubuntu@3.109.123.87:/home/ubuntu kubectl create -f"  
                          }
                      }
                 }
