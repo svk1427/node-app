@@ -12,7 +12,7 @@ pipeline {
      
         stage('BUild Docker image') {
             steps {
-                sh "dockr build . -t vamsirecordent/nodeapp:${DOCKER_TAG}"
+                sh "docker build . -t vamsirecordent/nodeapp:${DOCKER_TAG}"
             }
         }
 
