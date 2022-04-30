@@ -31,13 +31,13 @@ pipeline {
                 sh "./changeTag.sh ${DOCKER_TAG}"
                 sshagent(['k8smastermachine']) {
                     sh "scp -o StrictHostKeyChecking=no services.yml node-app-pod.yml ubuntu@3.109.123.87:/home/ubuntu/"
-//                     script {
-// //                         try {
-// //                             sh "ssh ubuntu@3.109.123.87 kubectl apply -f ."
-// //                         }catch(error) {
-// //                             sh "ssh ubuntu@3.109.123.87 kubectl create -f ."  
-// //                         }
-//                     }
+                    script {
+                        try {
+                             sh "ssh ubuntu@3.109.123.87 kubectl apply -f /home/ubuntu"
+                        }catch(error) {
+                          sh "ssh ubuntu@3.109.123.87 kubectl create -f /home/ubuntu/"  
+                         }
+                     }
                 }
                 
             }
