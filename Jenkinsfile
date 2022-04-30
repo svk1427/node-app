@@ -1,41 +1,31 @@
 pipeline {
     agent any
-    environment{
+    environment {
         DOCKER_TAG = getDockerTag()
-        NEXUS_URL  = "172.31.34.232:8080"
-        IMAGE_URL_WITH_TAG = "${NEXUS_URL}/node-app:${DOCKER_TAG}"
     }
     stages{
-        stage('Build Docker Image'){
-            steps{
-                sh "docker build . -t ${IMAGE_URL_WITH_TAG}"
+        stage('checkout code') {
+            steps {
+               git credentialsId: 'git-credentials', url: 'https://github.com/svk1427/node-app.git'
             }
         }
-        stage('Nexus Push'){
-            steps{
-                withCredentials([string(credentialsId: 'nexus-pwd', variable: 'nexusPwd')]) {
-                    sh "docker login -u admin -p ${nexusPwd} ${NEXUS_URL}"
-                    sh "docker push ${IMAGE_URL_WITH_TAG}"
-                }
+     
+        stage('BUild Docker image') {
+            steps {
+                sh "dockr build . -t vamsirecordent/nodeapp:${DOCKER_TAG}"
             }
         }
-        stage('Docker Deploy Dev'){
-            steps{
-                sshagent(['tomcat-dev']) {
-                    withCredentials([string(credentialsId: 'nexus-pwd', variable: 'nexusPwd')]) {
-                        sh "ssh ec2-user@172.31.0.38 docker login -u admin -p ${nexusPwd} ${NEXUS_URL}"
-                    }
-					// Remove existing container, if container name does not exists still proceed with the build
-					sh script: "ssh ec2-user@172.31.0.38 docker rm -f nodeapp",  returnStatus: true
-                    
-                    sh "ssh ec2-user@172.31.0.38 docker run -d -p 8080:8080 --name nodeapp ${IMAGE_URL_WITH_TAG}"
-                }
+
+        stage('Push Image to dokcer hub'){
+           withCredentials([string(credentialsId: 'dockerhub_pwd', variable: 'Dockerhubpwd')]) {
+               sh "docker login -u vamsirecordent ${Dockerhubpwd}"
+               sh "docker push vamsirecordent/nodeapp:${DOCKER_TAG}"
             }
         }
-    }
+}
 }
 
-def getDockerTag(){
-    def tag  = sh script: 'git rev-parse HEAD', returnStdout: true
+def getDockerTag() {
+    def tag = sh script: 'git rev-parse HEAD', rrturnStdout: true
     return tag
 }
